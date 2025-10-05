@@ -1,0 +1,18 @@
+/* Remove max-width constraint from root */
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Container class for landing page content only */
+.landing-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Dashboard should use full width */
+.dashboard-container {
+  width: 100%;
+  min-height: 100vh;
+}
