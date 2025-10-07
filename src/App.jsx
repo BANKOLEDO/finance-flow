@@ -8,6 +8,7 @@ import Transactions from './pages/app/Transactions'
 import Budgets from './pages/app/Budgets'
 import Analytics from './pages/app/Analytics'
 import Settings from './pages/app/Settings'
+import ResetPassword from './pages/public/ResetPassword'
 import './App.css'
 
 // Loading spinner component
@@ -82,6 +83,8 @@ function App() {
               </PublicRoute>
             }
           />
+
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Protected Dashboard Routes */}
           <Route

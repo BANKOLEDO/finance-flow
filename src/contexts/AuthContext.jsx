@@ -29,14 +29,33 @@ export const AuthProvider = ({ children }) => {
       }
     })
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Listen for auth changes - including email confirmation
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event)
+      
       setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id)
-      } else {
+      
+      if (event === 'SIGNED_IN') {
+        if (session?.user) {
+          await fetchProfile(session.user.id)
+          
+          // Check if user just confirmed their email
+          if (session.user.email_confirmed_at) {
+            console.log('User email confirmed!')
+            // This could trigger a welcome event or redirect here
+          }
+        }
+      } else if (event === 'USER_UPDATED') {
+        // Handle email confirmation updates
+        if (session?.user?.email_confirmed_at) {
+          console.log('Email confirmation detected!')
+        }
+      } else if (event === 'SIGNED_OUT') {
         setProfile(null)
         setLoading(false)
+      } else if (event === 'EMAIL_VERIFIED') {
+        console.log('Email verified event triggered!')
+        // This event fires when user verifies their email via the confirmation link
       }
     })
 
@@ -60,7 +79,8 @@ export const AuthProvider = ({ children }) => {
             .insert({
               id: userId,
               email: authUser.email,
-              full_name: authUser.user_metadata?.full_name || 'User'
+              full_name: authUser.user_metadata?.full_name || 'User',
+              email_verified: authUser.email_confirmed_at !== null
             })
             .select()
             .single()
@@ -79,25 +99,76 @@ export const AuthProvider = ({ children }) => {
   }
 
   const signUp = async (email, password, fullName) => {
-    const { data, error } = await supabase.auth.signUp({
+    setLoading(true)
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { 
+            full_name: fullName 
+          },
+          emailRedirectTo: `${window.location.origin}/confirm-email`
+        }
+      })
+
+      if (error) throw error
+
+      return { data, error }
+    } catch (error) {
+      return { data: null, error }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const signIn = async (email, password, rememberMe = false) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password,
+      password
+    })
+
+    if (!error && rememberMe) {
+      localStorage.setItem('rememberedEmail', email)
+    } else if (!error && !rememberMe) {
+      localStorage.removeItem('rememberedEmail')
+    }
+
+    // Check if user needs email confirmation
+    if (!error && data.user && !data.user.email_confirmed_at) {
+      throw new Error('Please confirm your email address before signing in. Check your inbox for the confirmation link.')
+    }
+
+    return { data, error }
+  }
+
+  const resendConfirmationEmail = async (email) => {
+    const { data, error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
       options: {
-        data: { full_name: fullName }
+        emailRedirectTo: `${window.location.origin}/confirm-email`
       }
     })
     return { data, error }
   }
 
-  const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
+  const resetPassword = async (email) => {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    return { data, error }
+  }
+
+  const updatePassword = async (newPassword) => {
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword
     })
     return { data, error }
   }
 
   const signOut = async () => {
+    localStorage.removeItem('rememberedEmail')
     const { error } = await supabase.auth.signOut()
     if (!error) {
       setUser(null)
@@ -106,13 +177,22 @@ export const AuthProvider = ({ children }) => {
     return { error }
   }
 
+  const checkEmailVerification = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    return user?.email_confirmed_at !== null
+  }
+
   const value = {
     user,
     profile,
     loading: initializing,
     signUp,
     signIn,
-    signOut
+    signOut,
+    resetPassword,
+    updatePassword,
+    resendConfirmationEmail,
+    checkEmailVerification
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
