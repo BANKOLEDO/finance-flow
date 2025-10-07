@@ -1,4 +1,3 @@
-// src/components/settings/NotificationsSettings.jsx
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Save } from 'lucide-react'

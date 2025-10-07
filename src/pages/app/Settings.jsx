@@ -3,7 +3,6 @@ import { useState } from 'react'
 import DashboardLayout from '../../components/layout/DashboardLayout'
 import SettingsLayout from '../../components/settings/SettingsLayout'
 import ProfileSettings from '../../components/settings/ProfileSettings'
-import NotificationsSettings from '../../components/settings/NotificationsSettings'
 import SecuritySettings from '../../components/settings/SecuritySettings'
 import ExportDataSettings from '../../components/settings/ExportDataSettings'
 
@@ -14,8 +13,6 @@ export default function Settings() {
     switch (activeTab) {
       case 'profile':
         return <ProfileSettings />
-      case 'notifications':
-        return <NotificationsSettings />
       case 'security':
         return <SecuritySettings />
       case 'export':

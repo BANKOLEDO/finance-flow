@@ -1,11 +1,10 @@
 import { motion } from 'framer-motion'
-import { User, Bell, Shield, Download } from 'lucide-react'
+import { User, Shield, Download } from 'lucide-react'
 import Card from '../ui/Card'
 
 export default function SettingsLayout({ activeTab, onTabChange, children }) {
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'export', label: 'Export Data', icon: Download },
   ]

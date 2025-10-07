@@ -321,26 +321,26 @@ export default function ExportDataSettings() {
           Export your transactions and budgets as a professional PDF report with financial summaries.
         </p>
         
-        <Card className="p-4 sm:p-6 text-center border-2 border-dashed border-gray-200 hover:border-primary-300 transition-colors w-full">
-                  <FileText className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
-                  <h3 className="font-semibold text-gray-900 mb-2 text-base sm:text-lg">PDF Export</h3>
-                  <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                    Export your financial data with totals and summaries in a professional PDF format.
-                  </p>
-                  <Button
-                    onClick={exportData}
-                    disabled={isLoading}
-                    className="btn btn-primary w-full flex items-center justify-center gap-2 py-2 sm:py-2.5"
-                  >
-                    <Download className="h-4 w-4 flex-shrink-0" />
-                    <span className="flex-shrink-0">
-                      {isLoading ? 'Exporting...' : 'Export as PDF'}
-                    </span>
-                  </Button>
-                </Card>
+        <Card className="p-4 sm:p-6 text-center border-2 border-dashed border-gray-200 hover:border-primary-300 transition-colors max-w-[30rem] mx-auto">
+          <FileText className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+            <h3 className="font-semibold text-gray-900 mb-2 text-base sm:text-lg">PDF Export</h3>
+            <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+              Export your financial data with totals and summaries in a professional PDF format.
+            </p>
+            <Button
+              onClick={exportData}
+              disabled={isLoading}
+              className="btn btn-primary w-full flex items-center justify-center gap-2 py-2 sm:py-2.5"
+            >
+              <Download className="h-4 w-4 flex-shrink-0" />
+              <span className="flex-shrink-0">
+                {isLoading ? 'Exporting...' : 'Export as PDF'}
+              </span>
+            </Button>
+          </Card>
 
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p className="text-sm text-yellow-800">
+          <p className="text-sm text-yellow-800"> 
             <strong>Note:</strong> Your exported PDF contains sensitive financial information. 
             Keep this file secure and do not share it with unauthorized parties.
           </p>

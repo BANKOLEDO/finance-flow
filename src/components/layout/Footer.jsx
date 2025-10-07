@@ -17,17 +17,17 @@ export default function Footer() {
   const socialLinks = [
   { 
     icon: <Icon icon="mdi:github" className="w-5 h-5" />, 
-    href: '#', 
+    href: 'https://github.com/BANKOLEDO', 
     label: 'GitHub' 
   },
   { 
     icon: <Icon icon="prime:twitter" className="w-5 h-5" />, 
-    href: '#', 
+    href: 'https://x.com/dev_olabanks', 
     label: 'Twitter' 
   },
   { 
     icon: <Icon icon="mdi:email" className="w-5 h-5" />, 
-    href: '#', 
+    href: 'mailto:bankydavid12@gmail.com', 
     label: 'Email' 
   }
 ]
@@ -60,6 +60,7 @@ export default function Footer() {
                   href={social.href}
                   className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors duration-200 group"
                   aria-label={social.label}
+                  target='_blank'
                 >
                   {social.icon}
                 </a>
