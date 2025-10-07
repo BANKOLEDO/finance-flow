@@ -189,7 +189,7 @@ export default function Dashboard() {
                   <CreditCard className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
                   <p className="text-gray-500 mb-4 text-sm sm:text-base">No transactions yet</p>
                   <Link to="/dashboard/transactions">
-                    <Button size="sm" className="btn btn-primary">
+                    <Button size="sm" className="btn flex flex-row mx-auto py-3 btn-primary">
                       <Plus className="h-4 w-4 mr-2" />
                       Add Your First Transaction
                     </Button>
