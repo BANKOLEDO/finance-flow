@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { 
   LayoutDashboard, 
@@ -8,16 +8,20 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  User,
+  ChevronDown
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../ui/Button'
 
 export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const { user, profile, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const dropdownRef = useRef(null)
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -44,6 +48,18 @@ export default function DashboardLayout({ children }) {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProfileDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const isActive = (path) => location.pathname === path
 
   const handleSignOut = async () => {
@@ -56,6 +72,8 @@ export default function DashboardLayout({ children }) {
       alert('Error signing out. Please try again.')
     }
   }
+
+  const userInitial = profile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'
 
   return (
     <div className="min-h-screen bg-gray-50 flex dashboard-container">
@@ -94,12 +112,12 @@ export default function DashboardLayout({ children }) {
           </button>
         </div>
 
-        {/* User info */}
-        <div className="p-4 lg:p-6 border-b border-gray-200 flex-shrink-0">
+        {/* User info - Removed from sidebar */}
+        <div className="p-4 lg:p-6 border-b border-gray-200 flex-shrink-0 lg:hidden">
           <div className="flex items-center space-x-3">
             <div className="w-9 h-9 lg:w-10 lg:h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
               <span className="text-primary-600 font-semibold text-xs lg:text-sm">
-                {profile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
+                {userInitial}
               </span>
             </div>
             <div className="flex-1 min-w-0">
@@ -137,21 +155,11 @@ export default function DashboardLayout({ children }) {
           })}
         </nav>
 
-        {/* Sign out - Sticky at bottom */}
-        <div className="p-3 lg:p-4 border-t border-gray-200 flex-shrink-0">
-          <Button
-            variant="outline"
-            className="w-full flex items-center justify-center space-x-2 text-sm btn btn-outline"
-            onClick={handleSignOut}
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Sign Out</span>
-          </Button>
-        </div>
+        {/* Removed signout button from sidebar */}
       </aside>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0 lg:min-w-[calc(100vw-16rem)]">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar - Sticky */}
         <header className="sticky top-0 z-30 bg-white border-b border-gray-200 flex-shrink-0 shadow-sm">
           <div className="flex items-center justify-between px-4 lg:px-6 py-3 lg:py-4">
@@ -171,24 +179,77 @@ export default function DashboardLayout({ children }) {
               </h1>
             </div>
 
-            {/* Date display - Hidden on small screens */}
-            <div className="hidden sm:flex items-center">
-              <div className="card px-3 py-2">
-                <span className="text-sm text-gray-600 font-medium">
-                  {new Date().toLocaleDateString('en-US', { 
-                    weekday: 'short', 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </span>
+            {/* Right side - Date and Profile */}
+            <div className="flex items-center space-x-4">
+              {/* Date display - Hidden on small screens */}
+              <div className="hidden sm:flex items-center">
+                <div className="card px-3 py-2">
+                  <span className="text-sm text-gray-600 font-medium">
+                    {new Date().toLocaleDateString('en-US', { 
+                      weekday: 'short', 
+                      month: 'short', 
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </span>
+                </div>
+              </div>
+
+              {/* Profile Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                  aria-label="Profile menu"
+                >
+                  <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-semibold text-sm">
+                      {userInitial}
+                    </span>
+                  </div>
+                  <ChevronDown className={`h-4 w-4 text-gray-600 transition-transform duration-200 ${
+                    profileDropdownOpen ? 'rotate-180' : ''
+                  }`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {profileDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    {/* User Info */}
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {profile?.full_name || 'User'}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                    </div>
+
+                    {/* Settings Link */}
+                    <Link
+                      to="/dashboard/settings"
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    >
+                      <User className="h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+
+                    {/* Sign Out */}
+                    <button
+                      onClick={handleSignOut}
+                      className="flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left transition-colors duration-200"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </header>
 
         {/* Page content - Scrollable */}
-        <main className="flex-1 overflow-auto bg-gray-50">
+        <main className="flex-1 overflow-y-auto bg-gray-50">
           <div className="p-4 lg:p-6 max-w-7xl mx-auto w-full min-h-full">
             {children}
           </div>

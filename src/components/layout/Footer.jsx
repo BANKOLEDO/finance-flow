@@ -1,16 +1,11 @@
-import { Github, Twitter, Mail, Shield, Heart } from 'lucide-react'
+import { Shield, Heart } from 'lucide-react'
 import Button from '../ui/Button'
+import { Icon } from '@iconify/react'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   const footerLinks = {
-    product: [
-      { name: 'Features', href: '#features' },
-      { name: 'How It Works', href: '#how-it-works' },
-      { name: 'Testimonials', href: '#testimonials' },
-      { name: 'Pricing', href: '#' }
-    ],
     support: [
       { name: 'Help Center', href: '#' },
       { name: 'Contact Us', href: '#' },
@@ -20,18 +15,30 @@ export default function Footer() {
   }
 
   const socialLinks = [
-    { icon: Github, href: '#', label: 'GitHub' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Mail, href: '#', label: 'Email' }
-  ]
+  { 
+    icon: <Icon icon="mdi:github" className="w-5 h-5" />, 
+    href: '#', 
+    label: 'GitHub' 
+  },
+  { 
+    icon: <Icon icon="prime:twitter" className="w-5 h-5" />, 
+    href: '#', 
+    label: 'Twitter' 
+  },
+  { 
+    icon: <Icon icon="mdi:email" className="w-5 h-5" />, 
+    href: '#', 
+    label: 'Email' 
+  }
+]
 
   return (
     <footer className=" max-w-7xl mx-auto bg-gradient-to-br from-gray-900 to-black text-white pt-4">
       {/* Main Footer Content */}
       <div className="landing-container py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="flex max-w-3xl mx-auto items-center gap-4 px-2 flex-col md:flex-row md:justify-evenly">
           {/* Brand Column */}
-          <div className="lg:col-span-2">
+          <div className="">
             <div className="flex justify-center md:justify-start space-x-3 mb-6">
               <img 
                 src="/logo/logo-light-transparent.png" 
@@ -54,7 +61,7 @@ export default function Footer() {
                   className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors duration-200 group"
                   aria-label={social.label}
                 >
-                  <social.icon className="h-5 w-5 text-gray-400 group-hover:text-white" />
+                  {social.icon}
                 </a>
               ))}
             </div>
@@ -66,25 +73,8 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Product Links */}
-          <div className="text-center md:text-left">
-            <h3 className="font-semibold text-white mb-4">Product</h3>
-            <ul className="space-y-3">
-              {footerLinks.product.map((link, index) => (
-                <li key={index}>
-                  <a
-                    href={link.href}
-                    className="text-gray-400 hover:text-white transition-colors duration-200"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* Support Links */}
-          <div className="text-center md:text-left">
+          <div className="text-center w-1/2 md:w-1/3 p-2 md:text-left">
             <h3 className="font-semibold text-white mb-4">Support</h3>
             <ul className="space-y-3">
               {footerLinks.support.map((link, index) => (
@@ -102,7 +92,7 @@ export default function Footer() {
         </div>
 
         {/* Newsletter Signup */}
-        <div className="flex justify-center mt-12 mb-3 pt-12 border-t border-gray-800">
+        <div className="flex justify-center mt-6 mb-10 pt-12 border-t border-gray-800">
           <div className="max-w-md w-full">
             <h3 className="font-semibold text-white mb-4 text-center">Stay Updated</h3>
             <p className="text-gray-400 mb-4 text-sm text-center">
@@ -130,7 +120,7 @@ export default function Footer() {
             <div className="flex items-center py-2 space-x-2 text-gray-400 text-sm">
               <span>&copy; {currentYear} Finance Flow. Built with</span>
               <Heart className="h-4 w-4 text-red-500" />
-              <span>for the community.</span>
+              <span>by Dev Olabanks.</span>
             </div>
 
             {/* Additional Links */}
