@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Trash2, CreditCard } from 'lucide-react'
 import DashboardLayout from '../../components/layout/DashboardLayout'
 import { useDataManager } from '../../hooks/useDataManager'
@@ -42,6 +42,25 @@ export default function Transactions() {
     if (filter === 'expense') return t.type === 'expense'
     return true
   })
+
+  // Calculate summary stats
+  const summary = useMemo(() => {
+    const income = filteredTransactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + parseFloat(t.amount), 0)
+
+    const expenses = filteredTransactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + parseFloat(t.amount), 0)
+
+    const balance = income - expenses
+
+    return {
+      income: parseFloat(income.toFixed(2)),
+      expenses: parseFloat(expenses.toFixed(2)),
+      balance: parseFloat(balance.toFixed(2))
+    }
+  }, [filteredTransactions])
 
   const getCategoryName = (id) => {
     return categories.find(c => c.id === id)?.name || 'Uncategorized'
@@ -131,7 +150,7 @@ export default function Transactions() {
               {filteredTransactions.map((transaction) => (
                 <div
                   key={transaction.id}
-                  className="flex items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 min-w-0"
+                  className="flex items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 min-w-0 transition-colors duration-200"
                 >
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
                     <div
@@ -142,16 +161,19 @@ export default function Transactions() {
                       <p className="font-medium text-gray-900 truncate text-sm sm:text-base">
                         {transaction.description}
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-500 truncate">
-                        {getCategoryName(transaction.category_id)}
-                      </p>
-                    </div>
-                    <div className="text-xs sm:text-sm text-gray-500 whitespace-nowrap flex-shrink-0 ml-2">
-                      {new Date(transaction.transaction_date).toLocaleDateString()}
+                      <div className="flex items-center space-x-2 mt-1">
+                        <p className="text-xs text-gray-500 truncate">
+                          {getCategoryName(transaction.category_id)}
+                        </p>
+                        <span className="text-gray-300">•</span>
+                        <p className="text-xs text-gray-500 whitespace-nowrap">
+                          {new Date(transaction.transaction_date).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-2 sm:space-x-4 ml-2 sm:ml-4 flex-shrink-0">
+                  <div className="flex items-center space-x-2 sm:space-x-3 ml-2 flex-shrink-0">
                     <div className={`text-right font-semibold text-sm sm:text-base whitespace-nowrap ${
                       transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                     }`}>
@@ -161,7 +183,7 @@ export default function Transactions() {
                     <button
                       onClick={() => deleteTransaction(transaction.id)}
                       disabled={deleting === transaction.id}
-                      className="p-1 sm:p-2 text-gray-400 hover:text-red-600 transition disabled:opacity-50 flex-shrink-0"
+                      className="p-1.5 text-gray-400 hover:text-red-600 transition-all duration-200 disabled:opacity-50 flex-shrink-0 rounded-lg hover:bg-red-50"
                     >
                       {deleting === transaction.id ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600" />
@@ -176,25 +198,65 @@ export default function Transactions() {
           )}
         </Card>
 
-        {/* Summary */}
+        {/* Summary with Balance */}
         {filteredTransactions.length > 0 && (
           <Card className="p-4">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-sm">
-              <span className="text-gray-600 text-center sm:text-left">
-                Showing {filteredTransactions.length} of {transactions.length} transactions
-              </span>
-              <div className="flex justify-center sm:justify-end space-x-4 sm:space-x-6">
-                <div className="text-green-600 whitespace-nowrap">
-                  Income: ${filteredTransactions
-                    .filter(t => t.type === 'income')
-                    .reduce((sum, t) => sum + parseFloat(t.amount), 0)
-                    .toFixed(2)}
+            <div className="space-y-4 sm:space-y-0">
+              {/* Transaction Count */}
+              <div className="text-center sm:text-left">
+                <span className="text-gray-600 text-sm">
+                  Showing {filteredTransactions.length} of {transactions.length} transactions
+                </span>
+              </div>
+
+              {/* Financial Summary */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center sm:text-left">
+                {/* Income */}
+                <div className="bg-green-50 rounded-lg p-3 sm:p-4">
+                  <div className="text-sm text-green-600 font-medium mb-1">Income</div>
+                  <div className="text-lg sm:text-xl font-bold text-green-700">
+                    +${summary.income.toFixed(2)}
+                  </div>
                 </div>
-                <div className="text-red-600 whitespace-nowrap">
-                  Expenses: ${filteredTransactions
-                    .filter(t => t.type === 'expense')
-                    .reduce((sum, t) => sum + parseFloat(t.amount), 0)
-                    .toFixed(2)}
+
+                {/* Expenses */}
+                <div className="bg-red-50 rounded-lg p-3 sm:p-4">
+                  <div className="text-sm text-red-600 font-medium mb-1">Expenses</div>
+                  <div className="text-lg sm:text-xl font-bold text-red-700">
+                    -${summary.expenses.toFixed(2)}
+                  </div>
+                </div>
+
+                {/* Balance */}
+                <div className={`rounded-lg p-3 sm:p-4 ${
+                  summary.balance >= 0 ? 'bg-blue-50' : 'bg-orange-50'
+                }`}>
+                  <div className={`text-sm font-medium mb-1 ${
+                    summary.balance >= 0 ? 'text-blue-600' : 'text-orange-600'
+                  }`}>
+                    Balance
+                  </div>
+                  <div className={`text-lg sm:text-xl font-bold ${
+                    summary.balance >= 0 ? 'text-blue-700' : 'text-orange-700'
+                  }`}>
+                    {summary.balance >= 0 ? '+' : ''}${summary.balance.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-200">
+                <div className="text-center">
+                  <div className="text-sm text-gray-600">Income Transactions</div>
+                  <div className="text-sm font-semibold text-gray-900">
+                    {filteredTransactions.filter(t => t.type === 'income').length}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm text-gray-600">Expense Transactions</div>
+                  <div className="text-sm font-semibold text-gray-900">
+                    {filteredTransactions.filter(t => t.type === 'expense').length}
+                  </div>
                 </div>
               </div>
             </div>
