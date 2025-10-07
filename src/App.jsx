@@ -9,6 +9,7 @@ import Budgets from './pages/app/Budgets'
 import Analytics from './pages/app/Analytics'
 import Settings from './pages/app/Settings'
 import ResetPassword from './pages/public/ResetPassword'
+import EmailConfirmation from './pages/public/EmailConfirmation' // Add this import
 import './App.css'
 
 // Loading spinner component
@@ -53,6 +54,17 @@ function PublicRoute({ children }) {
   return children
 }
 
+// Special route for email confirmation (can be accessed logged in or out)
+function EmailConfirmationRoute({ children }) {
+  const { loading } = useAuth()
+  
+  if (loading) {
+    return <LoadingSpinner />
+  }
+  
+  return children
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -84,7 +96,19 @@ function App() {
             }
           />
 
-          <Route path="/reset-password" element={<ResetPassword />} />
+          {/* Special Routes - No redirect protection */}
+          <Route
+            path="/reset-password"
+            element={<ResetPassword />}
+          />
+          <Route
+            path="/confirm-email"
+            element={
+              <EmailConfirmationRoute>
+                <EmailConfirmation />
+              </EmailConfirmationRoute>
+            }
+          />
 
           {/* Protected Dashboard Routes */}
           <Route

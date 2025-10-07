@@ -1,7 +1,6 @@
-// src/pages/public/EmailConfirmation.jsx
 import { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { MailCheck, MailX, CheckCircle, XCircle } from 'lucide-react'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { MailCheck, MailX, CheckCircle, XCircle, Loader } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import AuthNavbar from '../../components/layout/AuthNavbar'
 import Button from '../../components/ui/Button'
@@ -9,31 +8,48 @@ import Card from '../../components/ui/Card'
 
 export default function EmailConfirmation() {
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [status, setStatus] = useState('loading') // loading, success, error
   const [message, setMessage] = useState('')
-  const { user } = useAuth()
+  const { user, signIn } = useAuth()
 
   useEffect(() => {
-    confirmEmail()
+    handleEmailConfirmation()
   }, [])
 
-  const confirmEmail = async () => {
+  const handleEmailConfirmation = async () => {
     try {
-      // Check if user is already confirmed (they might have clicked the link and are already logged in)
-      if (user?.email_confirmed_at) {
-        setStatus('success')
-        setMessage('Your email has already been confirmed. You can now access all features.')
-        return
-      }
+      // Get the token from URL (Supabase includes it in the redirect)
+      const token = searchParams.get('token')
+      const type = searchParams.get('type')
 
-      // For Supabase, the confirmation happens automatically when they click the link
-      // This page is just to show a success message and guide them to login
-      
-      // Simulate API call to verify email
-      setTimeout(() => {
+      console.log('Confirmation params:', { token, type })
+
+      if (token && type === 'signup') {
+        // User came from email link - Supabase has already confirmed them
+        // Now we can automatically sign them in or redirect to dashboard
+        
+        // Check if user is already confirmed and logged in
+        if (user?.email_confirmed_at) {
+          setStatus('success')
+          setMessage('Your email has been confirmed! Redirecting to dashboard...')
+          setTimeout(() => navigate('/dashboard'), 2000)
+          return
+        }
+
+        // If not logged in but token is present, show success and prompt login
         setStatus('success')
         setMessage('Your email has been successfully confirmed! You can now sign in to your account.')
-      }, 1500)
+        
+      } else if (user?.email_confirmed_at) {
+        // User is already confirmed (direct visit to this page)
+        setStatus('success')
+        setMessage('Your email is already confirmed. You have full access to your account.')
+      } else {
+        // No token and not confirmed - show error
+        setStatus('error')
+        setMessage('Confirmation link is invalid or has expired. Please request a new confirmation email.')
+      }
 
     } catch (error) {
       console.error('Email confirmation error:', error)
@@ -42,8 +58,20 @@ export default function EmailConfirmation() {
     }
   }
 
+  const handleAutoLogin = async () => {
+    try {
+      // In a real implementation, you might auto-login the user here
+      // For security, we'll just redirect to login
+      navigate('/login')
+    } catch (error) {
+      console.error('Auto-login error:', error)
+      navigate('/login')
+    }
+  }
+
   const resendConfirmation = async () => {
-    alert('Resend confirmation functionality would be implemented here')
+    // This would call your resend confirmation API
+    alert('Please use the "Resend Confirmation" feature on the login page.')
   }
 
   if (status === 'loading') {
@@ -53,7 +81,7 @@ export default function EmailConfirmation() {
         <div className="flex-1 flex flex-col justify-center py-4 px-3">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <Card className="py-8 px-4 shadow-sm sm:rounded-lg sm:px-10 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+              <Loader className="animate-spin h-12 w-12 text-primary-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 Confirming your email...
               </h3>
@@ -125,7 +153,7 @@ export default function EmailConfirmation() {
             
             <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Email Confirmed!
+              Email Confirmed! 🎉
             </h3>
             <p className="text-gray-600 mb-6">
               {message}
@@ -141,11 +169,13 @@ export default function EmailConfirmation() {
             </div>
 
             <div className="space-y-3">
-              <Link to="/login">
-                <Button variant="black" className="w-full">
-                  Sign In to Your Account
-                </Button>
-              </Link>
+              <Button
+                onClick={handleAutoLogin}
+                variant="black"
+                className="w-full"
+              >
+                Sign In to Your Account
+              </Button>
               <Link to="/">
                 <Button variant="outline" className="w-full">
                   Go to Homepage
@@ -154,7 +184,7 @@ export default function EmailConfirmation() {
             </div>
 
             <div className="mt-6 text-sm text-gray-500">
-              Welcome to Finance Flow! 🎉
+              Welcome to Finance Flow!
             </div>
           </Card>
         </div>
