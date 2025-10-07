@@ -1,4 +1,3 @@
-// src/components/analytics/StatsOverview.jsx
 import { motion } from 'framer-motion'
 import { TrendingUp, TrendingDown, DollarSign, Calendar } from 'lucide-react'
 import Card from '../ui/Card'
