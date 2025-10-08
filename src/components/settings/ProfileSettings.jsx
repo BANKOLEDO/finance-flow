@@ -75,11 +75,6 @@ export default function ProfileSettings() {
               {profile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
             </span>
           </div>
-          <div>
-            <Button type="button" variant="outline" size="sm" className="btn btn-outline">
-              Change Avatar
-            </Button>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -1,4 +1,4 @@
-# 💰 Finance Flow
+# Finance Flow
 
 A modern, intuitive personal finance management application built with React and Supabase. Track expenses, manage budgets, and gain insights into your spending habits.
 
