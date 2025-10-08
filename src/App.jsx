@@ -9,7 +9,7 @@ import Budgets from './pages/app/Budgets'
 import Analytics from './pages/app/Analytics'
 import Settings from './pages/app/Settings'
 import ResetPassword from './pages/public/ResetPassword'
-import EmailConfirmation from './pages/public/EmailConfirmation' // Add this import
+import EmailConfirmation from './pages/public/EmailConfirmation'
 import './App.css'
 
 // Loading spinner component
@@ -24,7 +24,6 @@ function LoadingSpinner() {
   )
 }
 
-// Protected route component
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
   
@@ -32,14 +31,9 @@ function ProtectedRoute({ children }) {
     return <LoadingSpinner />
   }
   
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
-  
-  return children
+  return user ? children : <Navigate to="/login" replace />
 }
 
-// Public route component (redirects to dashboard if logged in)
 function PublicRoute({ children }) {
   const { user, loading } = useAuth()
   
@@ -47,14 +41,9 @@ function PublicRoute({ children }) {
     return <LoadingSpinner />
   }
   
-  if (user) {
-    return <Navigate to="/dashboard" replace />
-  }
-  
-  return children
+  return user ? <Navigate to="/dashboard" replace /> : children
 }
 
-// Special route for email confirmation (can be accessed logged in or out)
 function EmailConfirmationRoute({ children }) {
   const { loading } = useAuth()
   
