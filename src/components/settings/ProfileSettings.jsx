@@ -10,48 +10,44 @@ export default function ProfileSettings() {
   const [saveLoading, setSaveLoading] = useState(false)
   const [profileForm, setProfileForm] = useState({
     full_name: '',
-    email: ''
+    email: '',
   })
 
-  // Initialize form data when profile/user loads
   useEffect(() => {
     if (profile || user) {
       setProfileForm({
         full_name: profile?.full_name || '',
-        email: user?.email || ''
+        email: user?.email || '',
       })
     }
   }, [profile, user])
 
-  // Update profile function
   const updateProfile = async (e) => {
     e.preventDefault()
     setSaveLoading(true)
-    
+
     try {
       const { error } = await supabase
         .from('profiles')
         .update({
           full_name: profileForm.full_name,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', user.id)
 
       if (error) throw error
 
-      // Update email through Supabase auth
       if (profileForm.email !== user.email) {
         const { error: emailError } = await supabase.auth.updateUser({
-          email: profileForm.email
+          email: profileForm.email,
         })
-        
+
         if (emailError) throw emailError
         alert('Profile updated! Please check your email to confirm the new email address.')
       } else {
         alert('Profile updated successfully!')
       }
-      
-      // Refresh the page to get updated data
+
       window.location.reload()
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -62,59 +58,61 @@ export default function ProfileSettings() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      <h2 className="text-lg font-semibold text-gray-900 mb-6">Profile Settings</h2>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+      <div className="mb-6">
+        <h2 className="font-display text-xl font-semibold text-ink">Profile settings</h2>
+        <p className="mt-1 text-xs font-mono uppercase tracking-wider text-ink-faint">
+          your identity
+        </p>
+      </div>
+
       <form onSubmit={updateProfile} className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
-            <span className="text-primary-600 font-semibold text-xl">
+        <div className="flex items-center gap-4">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full border border-money-500/30 bg-money-500/10">
+            <span className="font-pixel text-xl text-money-400">
               {profile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
             </span>
           </div>
+          <div>
+            <p className="font-medium text-ink">
+              {profile?.full_name || 'Unnamed'}
+            </p>
+            <p className="text-xs text-ink-faint">signed in as {user?.email}</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
-            </label>
+            <label className="label">Full name</label>
             <input
               type="text"
               value={profileForm.full_name}
-              onChange={(e) => setProfileForm(prev => ({ ...prev, full_name: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              onChange={(e) =>
+                setProfileForm((prev) => ({ ...prev, full_name: e.target.value }))
+              }
+              className="input"
               placeholder="Enter your full name"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
-            </label>
+            <label className="label">Email address</label>
             <input
               type="email"
               value={profileForm.email}
-              onChange={(e) => setProfileForm(prev => ({ ...prev, email: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              onChange={(e) => setProfileForm((prev) => ({ ...prev, email: e.target.value }))}
+              className="input"
               placeholder="Enter your email"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Changing email requires verification
-            </p>
+            <p className="mt-1.5 text-xs text-ink-faint">Changing email requires verification</p>
           </div>
         </div>
 
-        <Button 
-          type="submit" 
-          className="btn btn-primary flex items-center space-x-2"
-          disabled={saveLoading}
-        >
-          <Save className="h-4 w-4" />
-          <span>{saveLoading ? 'Saving...' : 'Save Changes'}</span>
-        </Button>
+        <div className="border-t border-line pt-5">
+          <Button type="submit" disabled={saveLoading} className="group/btn">
+            <Save className="h-4 w-4" />
+            {saveLoading ? 'Saving…' : 'Save changes'}
+          </Button>
+        </div>
       </form>
     </motion.div>
   )

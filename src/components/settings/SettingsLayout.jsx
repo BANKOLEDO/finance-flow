@@ -10,40 +10,53 @@ export default function SettingsLayout({ activeTab, onTabChange, children }) {
   ]
 
   return (
-    <div className="p-4 sm:p-6">
+    <div className="space-y-8">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Settings</h1>
-        <p className="text-gray-600">Manage your account preferences and settings</p>
+        <p className="mb-2 text-[10px] font-pixel uppercase tracking-wide text-money-400">
+          /config
+        </p>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+          Settings
+        </h1>
+        <p className="mt-2 text-sm text-ink-mute">
+          Manage your account preferences and settings
+        </p>
       </motion.div>
 
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar Navigation */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        {/* sidebar nav */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="lg:col-span-1"
         >
-          <Card className="p-4">
+          <Card className="p-3">
             <nav className="space-y-1">
               {tabs.map((tab) => {
                 const Icon = tab.icon
+                const isActive = activeTab === tab.id
                 return (
                   <button
                     key={tab.id}
                     onClick={() => onTabChange(tab.id)}
-                    className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      activeTab === tab.id
-                        ? 'bg-primary-50 text-primary-600 nav-active'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 ${
+                      isActive ? 'text-ink' : 'text-ink-faint hover:text-ink-mute'
                     }`}
                   >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
-                    <span>{tab.label}</span>
+                    {isActive && (
+                      <motion.span
+                        layoutId="settings-tab"
+                        className="absolute inset-0 rounded-lg border border-line bg-canvas-soft"
+                        transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                      />
+                    )}
+                    <Icon className="relative h-4 w-4 shrink-0" />
+                    <span className="relative">{tab.label}</span>
                   </button>
                 )
               })}
@@ -51,16 +64,14 @@ export default function SettingsLayout({ activeTab, onTabChange, children }) {
           </Card>
         </motion.div>
 
-        {/* Content Area */}
+        {/* content */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="lg:col-span-3"
         >
-          <Card className="p-6">
-            {children}
-          </Card>
+          <Card className="p-6 sm:p-8">{children}</Card>
         </motion.div>
       </div>
     </div>
