@@ -1,4 +1,3 @@
-// src/pages/dashboard/Analytics.jsx
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import DashboardLayout from '../../components/layout/DashboardLayout'
@@ -14,33 +13,34 @@ export default function Analytics() {
 
   const stats = useMemo(() => {
     const totalIncome = transactions
-      .filter(t => t.type === 'income')
+      .filter((t) => t.type === 'income')
       .reduce((sum, t) => sum + parseFloat(t.amount), 0)
 
     const totalExpenses = transactions
-      .filter(t => t.type === 'expense')
+      .filter((t) => t.type === 'expense')
       .reduce((sum, t) => sum + parseFloat(t.amount), 0)
 
-    const avgTransaction = transactions.length > 0 
-      ? (totalIncome + totalExpenses) / transactions.length 
-      : 0
+    const avgTransaction =
+      transactions.length > 0 ? (totalIncome + totalExpenses) / transactions.length : 0
 
     return {
       totalIncome,
       totalExpenses,
       netWorth: totalIncome - totalExpenses,
       avgTransaction,
-      transactionCount: transactions.length
+      transactionCount: transactions.length,
     }
   }, [transactions])
 
   if (loading.transactions) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-96">
+        <div className="flex h-[70vh] items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading analytics...</p>
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-money-500 border-t-transparent" />
+            <p className="text-xs font-mono uppercase tracking-widest text-ink-faint">
+              crunching numbers…
+            </p>
           </div>
         </div>
       </DashboardLayout>
@@ -49,32 +49,31 @@ export default function Analytics() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-4 sm:p-6">
+      <div className="space-y-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Analytics</h1>
-          <p className="text-gray-600">Track your financial performance and insights</p>
+          <p className="mb-2 text-[10px] font-pixel uppercase tracking-wide text-money-400">
+            /metrics
+          </p>
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+            Analytics
+          </h1>
+          <p className="mt-2 text-sm text-ink-mute">
+            {transactions.length} transactions · {categories.length} categories tracked
+          </p>
         </motion.div>
 
-        {/* Stats Overview */}
         <StatsOverview stats={stats} />
 
-        {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Income vs Expenses Chart */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <IncomeExpenseChart transactions={transactions} />
-          
-          {/* Expense Categories */}
           <ExpenseCategories transactions={transactions} categories={categories} />
-          
-          {/* Balance Trend with Filters */}
           <BalanceTrendChart transactions={transactions} />
         </div>
 
-        {/* Transaction Summary */}
         <TransactionSummary stats={stats} transactions={transactions} />
       </div>
     </DashboardLayout>
