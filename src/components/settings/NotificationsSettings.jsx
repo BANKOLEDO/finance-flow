@@ -3,20 +3,38 @@ import { motion } from 'framer-motion'
 import { Save } from 'lucide-react'
 import Button from '../ui/Button'
 
+function Toggle({ checked, onChange }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors duration-200 ${
+        checked ? 'border-money-500/50 bg-money-500' : 'border-line bg-canvas-deep'
+      }`}
+    >
+      <span
+        className={`absolute top-[3px] left-[3px] h-4 w-4 rounded-full transition-transform duration-200 ${
+          checked ? 'translate-x-5 bg-canvas-deep' : 'bg-ink-faint'
+        }`}
+      />
+    </button>
+  )
+}
+
 export default function NotificationsSettings() {
   const [saveLoading, setSaveLoading] = useState(false)
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
     weeklyReports: false,
-    budgetAlerts: true
+    budgetAlerts: true,
   })
 
-  // Save notification preferences
   const saveNotifications = async () => {
     setSaveLoading(true)
     try {
-      // In a real app, you would save these to your database
       localStorage.setItem('notificationPreferences', JSON.stringify(notifications))
       alert('Notification preferences saved!')
     } catch (error) {
@@ -27,72 +45,49 @@ export default function NotificationsSettings() {
     }
   }
 
+  const rows = [
+    { key: 'email', title: 'Email notifications', desc: 'Receive updates via email' },
+    { key: 'push', title: 'Push notifications', desc: 'Get notified on this device' },
+    { key: 'weeklyReports', title: 'Weekly reports', desc: 'Receive weekly financial summaries' },
+    { key: 'budgetAlerts', title: 'Budget alerts', desc: 'Get notified when approaching budget limits' },
+  ]
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
-      <h2 className="text-lg font-semibold text-gray-900 mb-6">Notification Preferences</h2>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+      <div className="mb-6">
+        <h2 className="font-display text-xl font-semibold text-ink">Notification preferences</h2>
+        <p className="mt-1 text-xs font-mono uppercase tracking-wider text-ink-faint">
+          what you hear about
+        </p>
+      </div>
+
       <div className="space-y-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-            <div>
-              <h3 className="font-medium text-gray-900">Email Notifications</h3>
-              <p className="text-sm text-gray-600">Receive updates via email</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={notifications.email}
-                onChange={(e) => setNotifications(prev => ({ ...prev, email: e.target.checked }))}
-                className="sr-only peer"
+        <div className="space-y-2">
+          {rows.map((row) => (
+            <div
+              key={row.key}
+              className="flex items-center justify-between rounded-xl border border-line bg-canvas-soft px-4 py-4 transition-colors duration-200 hover:border-money-500/30"
+            >
+              <div>
+                <h3 className="text-sm font-medium text-ink">{row.title}</h3>
+                <p className="mt-0.5 text-xs text-ink-mute">{row.desc}</p>
+              </div>
+              <Toggle
+                checked={notifications[row.key]}
+                onChange={(checked) =>
+                  setNotifications((prev) => ({ ...prev, [row.key]: checked }))
+                }
               />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
-            </label>
-          </div>
-
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-            <div>
-              <h3 className="font-medium text-gray-900">Budget Alerts</h3>
-              <p className="text-sm text-gray-600">Get notified when approaching budget limits</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={notifications.budgetAlerts}
-                onChange={(e) => setNotifications(prev => ({ ...prev, budgetAlerts: e.target.checked }))}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
-            </label>
-          </div>
-
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-            <div>
-              <h3 className="font-medium text-gray-900">Weekly Reports</h3>
-              <p className="text-sm text-gray-600">Receive weekly financial summaries</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={notifications.weeklyReports}
-                onChange={(e) => setNotifications(prev => ({ ...prev, weeklyReports: e.target.checked }))}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
-            </label>
-          </div>
+          ))}
         </div>
 
-        <Button 
-          onClick={saveNotifications}
-          className="btn btn-primary flex items-center space-x-2"
-          disabled={saveLoading}
-        >
-          <Save className="h-4 w-4" />
-          <span>{saveLoading ? 'Saving...' : 'Save Preferences'}</span>
-        </Button>
+        <div className="border-t border-line pt-5">
+          <Button onClick={saveNotifications} disabled={saveLoading} className="group/btn">
+            <Save className="h-4 w-4" />
+            {saveLoading ? 'Saving…' : 'Save preferences'}
+          </Button>
+        </div>
       </div>
     </motion.div>
   )
