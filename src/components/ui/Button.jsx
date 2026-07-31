@@ -1,38 +1,41 @@
-export default function Button({ 
-  children, 
+import { ArrowUpRight } from 'lucide-react'
+
+export default function Button({
+  children,
   variant = 'primary',
   size = 'md',
   className = '',
-  ...props 
+  arrow = false,
+  ...props
 }) {
-  // Base classes that all buttons share
-  const baseClasses = 'font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
-  
-  // Different visual styles
   const variantClasses = {
-    primary: 'bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500',
-    black: 'bg-black text-white hover:bg-gray-800 focus:ring-gray-500',
-    outline: 'border border-gray-300 bg-white text-black hover:bg-gray-50 focus:ring-gray-500'
+    primary: 'btn btn-primary',
+    light: 'btn btn-light',
+    outline: 'btn btn-outline',
+    ghost: 'btn btn-ghost',
+    black: 'btn btn-light',
+    white: 'btn btn-light',
   }
-  
-  // Different sizes - responsive
+
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg sm:text-xl'
+    sm: 'px-4 py-2 text-xs',
+    md: 'px-5 py-2.5 text-sm',
+    lg: 'px-7 py-3.5 text-sm',
   }
-  
+
   return (
-    <button 
+    <button
       className={`
-        ${baseClasses} 
-        ${variantClasses[variant]} 
-        ${sizeClasses[size]}
+        ${variantClasses[variant] || variantClasses.primary}
+        ${sizeClasses[size] || sizeClasses.md}
         ${className}
       `}
       {...props}
     >
       {children}
+      {arrow && (
+        <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+      )}
     </button>
   )
 }
