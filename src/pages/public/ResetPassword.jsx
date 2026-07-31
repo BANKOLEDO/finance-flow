@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { Eye, EyeOff, Lock } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Eye, EyeOff, ArrowRight } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import AuthNavbar from '../../components/layout/AuthNavbar'
+import AuthShell from '../../components/layout/AuthShell'
 import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('')
@@ -14,8 +13,7 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  const [searchParams] = useSearchParams()
-  
+
   const { updatePassword } = useAuth()
 
   const handleSubmit = async (e) => {
@@ -28,7 +26,6 @@ export default function ResetPassword() {
       setLoading(false)
       return
     }
-
     if (password.length < 6) {
       setError('Password must be at least 6 characters')
       setLoading(false)
@@ -46,141 +43,109 @@ export default function ResetPassword() {
     }
   }
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <AuthNavbar />
-        <div className="flex-1 flex flex-col justify-center py-4 px-3">
-          <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            <Card className="py-8 px-4 shadow-sm sm:rounded-lg sm:px-10 text-center">
-              <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg text-sm mb-4">
-                Password updated successfully!
-              </div>
-              <p className="text-gray-600 mb-6">
-                Your password has been reset. You can now sign in with your new password.
-              </p>
-              <Link to="/login">
-                <Button variant="black" className="w-full">
-                  Sign In Now
-                </Button>
-              </Link>
-            </Card>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <AuthNavbar />
-      
-      <div className="flex-1 flex flex-col justify-center py-4 px-3">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900">
-            Reset Your Password
-          </h2>
+    <AuthShell>
+      {success ? (
+        <div className="text-center">
+          <h1 className="font-display text-3xl font-semibold text-ink">Password updated.</h1>
+          <p className="mt-3 text-sm leading-relaxed text-ink-mute">
+            Your password has been reset. Sign in with the new one.
+          </p>
+          <Link to="/login" className="mt-8 block">
+            <Button variant="light" className="w-full" size="lg">
+              Sign in now
+            </Button>
+          </Link>
         </div>
+      ) : (
+        <>
+          <p className="mb-3 text-[10px] font-pixel uppercase tracking-wide text-money-400">
+            set a new password
+          </p>
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+            Pick a new one.
+          </h1>
+          <p className="mt-3 text-sm leading-relaxed text-ink-mute">
+            Make it something only you would choose — and not your pet\u2019s name.
+          </p>
 
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-          <Card className="py-8 px-4 shadow-sm sm:rounded-lg sm:px-10">
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <label htmlFor="password" className="block text-left mb-2 text-sm font-medium text-primary-600">
-                  New Password
-                </label>
-                <div className="mt-1 relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500 pr-10"
-                    placeholder="Enter new password"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
-                </div>
-                <p className="mt-1 text-xs text-left text-gray-500">
-                  Must be at least 6 characters
-                </p>
+          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+            {error && (
+              <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3.5 text-sm text-red-400">
+                {error}
               </div>
+            )}
 
-              <div>
-                <label htmlFor="confirmPassword" className="block text-left mb-2 text-sm font-medium text-primary-600">
-                  Confirm New Password
-                </label>
-                <div className="mt-1 relative">
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    autoComplete="new-password"
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500 pr-10"
-                    placeholder="Confirm new password"
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <Eye className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <Button
-                  type="submit"
-                  variant="black"
-                  className="w-full flex justify-center items-center space-x-2"
-                  disabled={loading}
+            <div>
+              <label htmlFor="password" className="label">
+                New password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input pr-12"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-ink-faint hover:text-ink"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {loading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  ) : (
-                    <>
-                      <Lock className="h-5 w-5" />
-                      <span>Reset Password</span>
-                    </>
-                  )}
-                </Button>
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
-            </form>
-
-            <div className="mt-6 text-center">
-              <Link to="/login" className="text-sm text-primary-600 hover:text-primary-500">
-                Back to login
-              </Link>
+              <p className="mt-1.5 text-xs text-ink-faint">At least 6 characters</p>
             </div>
-          </Card>
-        </div>
-      </div>
-    </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="label">
+                Confirm new password
+              </label>
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="input pr-12"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-ink-faint hover:text-ink"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <Button type="submit" size="lg" className="group/btn w-full" disabled={loading}>
+              {loading ? 'Resetting…' : 'Reset password'}
+              {!loading && (
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <Link to="/login" className="font-mono text-xs uppercase tracking-wider text-money-400 hover:text-money-300">
+              Back to sign in
+            </Link>
+          </div>
+        </>
+      )}
+    </AuthShell>
   )
 }
