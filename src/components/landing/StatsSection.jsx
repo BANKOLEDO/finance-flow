@@ -1,255 +1,113 @@
-// src/components/landing/StatsSection.jsx
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { Users, TrendingUp, Shield, Zap, Quote } from 'lucide-react'
+import AnimatedNumber from '../ui/AnimatedNumber'
+import { images } from '../../lib/images'
+
+const stats = [
+  { value: 10000, suffix: '+', label: 'active accounts' },
+  { value: 48, prefix: '$', suffix: 'M', label: 'tracked this year' },
+  { value: 99.98, decimals: 2, suffix: '%', label: 'uptime' },
+  { value: 2, suffix: ' min', label: 'median setup' },
+]
+
+const testimonials = [
+  {
+    quote: 'Finally a finance app that doesn\u2019t scream at me. It sits quietly in the corner of the screen and just works.',
+    name: 'Sarah M.',
+    role: 'Freelance designer',
+    avatar: images.avatarA,
+  },
+  {
+    quote: 'I\u2019ve tried every budget app on the market. This is the first one I haven\u2019t deleted after a week.',
+    name: 'Mike R.',
+    role: 'Software engineer',
+    avatar: images.avatarB,
+  },
+  {
+    quote: 'As a student, tracking expenses used to stress me out. This made it feel like a game of arithmetic I can win.',
+    name: 'Jessica T.',
+    role: 'Economics student',
+    avatar: images.avatarC,
+  },
+]
 
 export default function StatsSection() {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, threshold: 0.1 })
-
-  const stats = [
-    {
-      icon: Users,
-      value: '10,000+',
-      label: 'Active Users',
-      description: 'People taking control of their finances',
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
-      icon: TrendingUp,
-      value: '$2.5M+',
-      label: 'Tracked Monthly',
-      description: 'In expenses managed through our platform',
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      icon: Shield,
-      value: '100%',
-      label: 'Secure & Private',
-      description: 'Your data is encrypted and protected',
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      icon: Zap,
-      value: '2min',
-      label: 'Setup Time',
-      description: 'Get started in just two minutes',
-      color: 'from-orange-500 to-orange-600'
-    }
-  ]
-
-  const testimonials = [
-    {
-      quote: "Finally, a finance app that doesn't overwhelm me. Simple, clean, and actually useful.",
-      author: "Sarah M.",
-      role: "Freelance Designer",
-      avatar: "SM"
-    },
-    {
-      quote: "I've tried every budget app out there. FinanceFlow is the first one I've actually stuck with.",
-      author: "Mike R.",
-      role: "Software Engineer",
-      avatar: "MR"
-    },
-    {
-      quote: "As a student, keeping track of expenses was stressful. This made it simple and stress-free.",
-      author: "Jessica T.",
-      role: "College Student",
-      avatar: "JT"
-    }
-  ]
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }
-  }
-
-  const statVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        ease: "backOut"
-      }
-    }
-  }
-
-  const testimonialVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    }
-  }
-
+  const inView = useInView(ref, { once: true, margin: '-60px' })
 
   return (
-    <section id="testimonials" className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl"></div>
-      </div>
+    <section id="testimonials" ref={ref} className="relative py-24 lg:py-32">
+      <div className="landing-container">
+        <div className="mb-16 text-center">
+          <p className="mb-4 text-[10px] font-pixel uppercase tracking-wide text-money-400">
+            [ 03 · field notes ]
+          </p>
+          <h2 className="mx-auto max-w-xl font-display text-display-sm font-semibold text-ink text-balance">
+            Quiet confidence, loud results
+          </h2>
+        </div>
 
-      <div className="container mx-auto px-6 relative z-10">
-        {/* Stats Header */}
-        <motion.div
-          ref={ref}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="text-center mb-20"
-        >
-          <motion.h2 
-            variants={itemVariants}
-            className="text-4xl md:text-6xl font-bold text-gray-900 mb-6"
-          >
-            Trusted by <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-600">Thousands</span>
-          </motion.h2>
-          <motion.p 
-            variants={itemVariants}
-            className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed"
-          >
-            Real people achieving real financial progress with our intuitive platform
-          </motion.p>
-        </motion.div>
-
-        {/* Stats Grid */}
-        <motion.div
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-20"
-        >
-          {stats.map((stat, index) => (
+        {/* stats */}
+        <div className="grid grid-cols-2 gap-y-10 border-t border-line pt-10 lg:grid-cols-4">
+          {stats.map((stat, i) => (
             <motion.div
-              key={index}
-              variants={statVariants}
-              whileHover={{ 
-                scale: 1.05,
-                y: -5,
-                transition: { duration: 0.2 }
-              }}
-              className="text-center"
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className="group px-4 lg:border-l lg:border-line lg:first:border-l-0"
             >
-              <div className="flex justify-center mb-4">
-                <div className="p-3 bg-white rounded-xl shadow-sm border border-gray-200">
-                  <stat.icon className="h-6 w-6 text-primary-600" />
-                </div>
-              </div>
-              <div className="text-2xl md:text-3xl font-bold text-black mb-1">{stat.value}</div>
-              <div className="text-sm font-semibold text-gray-900 mb-1">{stat.label}</div>
-              <div className="text-xs text-gray-600">{stat.description}</div>
+              <p className="font-display text-4xl font-bold tabular text-ink transition-colors duration-300 group-hover:text-money-400">
+                <AnimatedNumber
+                  value={stat.value}
+                  decimals={stat.decimals || 0}
+                  prefix={stat.prefix || ''}
+                  suffix={stat.suffix || ''}
+                />
+              </p>
+              <p className="mt-2 text-[10px] font-mono uppercase tracking-[0.18em] text-ink-mute">
+                {stat.label}
+              </p>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Testimonials */}
-        <motion.div
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="max-w-6xl mx-auto"
-        >
-          <motion.h3 
-            variants={itemVariants}
-            className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-16"
-          >
-            What Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-600">Users Say</span>
-          </motion.h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                variants={testimonialVariants}
-                whileHover={{ 
-                  y: -8,
-                  transition: { duration: 0.3 }
-                }}
-                className="group relative"
+        {/* testimonials */}
+        <div className="mt-24 grid gap-5 md:grid-cols-3">
+          {testimonials.map((t, i) => (
+            <motion.figure
+              key={t.name}
+              initial={{ opacity: 0, y: 28 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.15 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="group relative flex flex-col justify-between rounded-xl border border-line bg-canvas-card p-7 shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-money-500/40 hover:shadow-lift"
+            >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute right-6 top-5 font-pixel text-3xl text-money-500/25 transition-colors duration-300 group-hover:text-money-500/40"
               >
-                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 h-full">
-                  {/* Quote Icon */}
-                  <div className="absolute -top-4 -left-4">
-                    <div className="p-3 bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl shadow-lg">
-                      <Quote className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-
-                  {/* Quote */}
-                  <div className="text-gray-700 mb-6 leading-relaxed text-lg italic">
-                    "{testimonial.quote}"
-                  </div>
-
-                  {/* Author */}
-                  <div className="flex items-center space-x-4 pt-6 border-t border-gray-200/50">
-                    <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-white font-semibold text-sm">
-                        {testimonial.avatar}
-                      </span>
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900">{testimonial.author}</div>
-                      <div className="text-sm text-gray-600">{testimonial.role}</div>
-                    </div>
-                  </div>
-
-                  {/* Hover Gradient */}
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                &ldquo;
+              </span>
+              <blockquote className="relative text-[15px] leading-relaxed text-ink-soft">
+                {t.quote}
+              </blockquote>
+              <figcaption className="mt-8 flex items-center gap-3.5 border-t border-line pt-5">
+                <img
+                  src={t.avatar}
+                  alt={t.name}
+                  className="h-10 w-10 rounded-full border border-line object-cover"
+                  loading="lazy"
+                />
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-ink">{t.name}</span>
+                  <span className="text-xs font-mono uppercase tracking-wider text-ink-faint">
+                    {t.role}
+                  </span>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Floating Elements */}
-        <motion.div
-          animate={{
-            y: [0, -20, 0],
-            transition: {
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }
-          }}
-          className="absolute top-1/4 left-10 w-4 h-4 bg-primary-500/20 rounded-full"
-        />
-        <motion.div
-          animate={{
-            y: [0, 20, 0],
-            transition: {
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1
-            }
-          }}
-          className="absolute bottom-1/4 right-10 w-6 h-6 bg-purple-500/20 rounded-full"
-        />
+              </figcaption>
+            </motion.figure>
+          ))}
+        </div>
       </div>
     </section>
   )

@@ -1,299 +1,189 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { UserPlus, TrendingUp, Target, BarChart3, CheckCircle, ArrowRight } from 'lucide-react'
-import Card from '../ui/Card'
+import { UserPlus, PlusCircle, Target, Activity, ArrowRight } from 'lucide-react'
 import Button from '../ui/Button'
+
+const steps = [
+  {
+    icon: UserPlus,
+    title: 'Sign up in 90 seconds',
+    desc: 'Email only. No credit card, no onboarding quiz, no 14-step wizard.',
+  },
+  {
+    icon: PlusCircle,
+    title: 'Drop in a transaction',
+    desc: 'Type the amount, pick a category. Flow remembers the rest.',
+  },
+  {
+    icon: Target,
+    title: 'Set the ceilings',
+    desc: 'Give each category a monthly budget and let the ledger watch.',
+  },
+  {
+    icon: Activity,
+    title: 'Watch it move',
+    desc: 'Live balances, weekly flow, quiet nudges near the line.',
+  },
+]
+
+function Connector({ active, vertical = false }) {
+  return (
+    <div
+      className={`relative overflow-hidden ${vertical ? 'h-10 w-px flex-1' : 'mt-7 h-px flex-1'}`}
+      style={{ backgroundColor: '#2C2A22' }}
+    >
+      <motion.div
+        className="absolute bg-money-500"
+        style={vertical ? { insetInline: 0, top: 0, height: '100%', transformOrigin: 'top' } : { insetBlock: 0, left: 0, width: '100%', transformOrigin: 'left' }}
+        initial={vertical ? { scaleY: 0 } : { scaleX: 0 }}
+        animate={active ? (vertical ? { scaleY: 1 } : { scaleX: 1 }) : {}}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      />
+    </div>
+  )
+}
+
+function StepNode({ step, index, active }) {
+  const Icon = step.icon
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+      className={`flex-1 transition-opacity duration-500 ${active ? 'opacity-100' : 'opacity-40'}`}
+    >
+      <div className="flex flex-col items-start">
+        <div className="flex items-center gap-3">
+          <span
+            className={`inline-flex h-14 w-14 items-center justify-center rounded-xl border transition-colors duration-300 ${
+              active
+                ? 'border-money-500 bg-money-500/10 text-money-400'
+                : 'border-line bg-canvas-card text-ink-faint'
+            }`}
+          >
+            <Icon className="h-6 w-6" />
+          </span>
+          <span
+            className={`text-[11px] font-pixel tabular transition-colors duration-300 ${
+              active ? 'text-money-400' : 'text-ink-faint'
+            }`}
+          >
+            0{index + 1}
+          </span>
+        </div>
+        <h3 className="mt-5 font-display text-lg font-semibold leading-snug text-ink">{step.title}</h3>
+        <p className="mt-2 text-sm leading-relaxed text-ink-mute">{step.desc}</p>
+      </div>
+    </motion.div>
+  )
+}
 
 export default function HowItWorks() {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, threshold: 0.1 })
+  const inView = useInView(ref, { once: true, margin: '-80px' })
+  const [activeCount, setActiveCount] = useState(0)
 
-  const steps = [
-    {
-      step: 1,
-      icon: UserPlus,
-      title: 'Sign Up in Seconds',
-      description: 'Create your free account with just an email. No credit card required, no complex setup.',
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'bg-blue-100'
-    },
-    {
-      step: 2,
-      icon: TrendingUp,
-      title: 'Track Your Spending',
-      description: 'Quickly add transactions as you go. Categorize expenses and see where your money flows.',
-      color: 'from-green-500 to-green-600',
-      bgColor: 'bg-green-100'
-    },
-    {
-      step: 3,
-      icon: Target,
-      title: 'Set Simple Goals',
-      description: 'Create budgets that make sense. Set spending limits and savings targets that actually work.',
-      color: 'from-purple-500 to-purple-600',
-      bgColor: 'bg-purple-100'
-    },
-    {
-      step: 4,
-      icon: BarChart3,
-      title: 'Watch Your Progress',
-      description: 'See your financial health improve with clean visual reports and real-time insights.',
-      color: 'from-orange-500 to-orange-600',
-      bgColor: 'bg-orange-100'
-    }
-  ]
-
-  const benefits = [
-    'No credit card required',
-    'Setup in under 2 minutes',
-    'Works on all devices',
-    'Data stays private & secure',
-    'Free forever - no hidden costs'
-  ]
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }
-  }
-
-  const stepVariants = {
-    hidden: { opacity: 0, x: -50 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.5,
-        ease: "backOut"
-      }
-    }
-  }
-
-  const cardVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        ease: "backOut"
-      }
-    }
-  }
+  useEffect(() => {
+    if (!inView) return
+    const id = setInterval(() => {
+      setActiveCount((c) => {
+        if (c >= steps.length) {
+          clearInterval(id)
+          return c
+        }
+        return c + 1
+      })
+    }, 600)
+    return () => clearInterval(id)
+  }, [inView])
 
   return (
-    <section id="how-it-works" className="max-w-7xl mx-auto py-20 bg-white relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl"></div>
-      </div>
+    <section id="how-it-works" ref={ref} className="relative overflow-hidden border-y border-line bg-canvas-soft/50 py-24 lg:py-32">
+      <div aria-hidden className="absolute inset-0 pattern-grid opacity-60" />
 
-      <div className="container mx-auto px-6 relative z-10">
-        {/* Header */}
-        <motion.div
-          ref={ref}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="text-center mb-20"
-        >
-          <motion.h2 
-            variants={itemVariants}
-            className="text-4xl md:text-6xl font-bold text-gray-900 mb-6"
-          >
-            How It <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-primary-600">Works</span>
-          </motion.h2>
-          <motion.p 
-            variants={itemVariants}
-            className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed"
-          >
-            Getting started with Finance Flow is simple and takes just minutes
-          </motion.p>
-        </motion.div>
+      <div className="landing-container relative z-10">
+        <div className="mx-auto mb-16 max-w-2xl text-center">
+          <p className="mb-4 text-[10px] font-pixel uppercase tracking-wide text-money-400">
+            [ 02 · the pipeline ]
+          </p>
+          <h2 className="font-display text-display-sm font-semibold text-ink text-balance">
+            From signup to insight in four moves
+          </h2>
+          <p className="mt-5 text-sm leading-relaxed text-ink-mute">
+            No maze. No dashboard that takes a week to learn. Just a straight line from your first
+            entry to your first clarity.
+          </p>
+        </div>
 
-        {/* Steps */}
-        <motion.div
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={containerVariants}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20"
-        >
-          {/* Steps List */}
-          <div className="space-y-8">
-            {steps.map((step) => (
-              <motion.div
-                key={step.step}
-                variants={stepVariants}
-                whileHover={{ 
-                  x: 10,
-                  transition: { duration: 0.2 }
-                }}
-                className="flex space-x-6 group relative"
-              >
-
-                {/* Step Number */}
-                <div className="flex-shrink-0">
-                  <motion.div 
-                    className="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center font-bold text-lg group-hover:scale-110 transition-transform duration-200"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    {step.step}
-                  </motion.div>
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-300"></div>
-                </div>
-                
-                {/* Content */}
-                <div className="flex-1">
-                  <div className="flex items-center space-x-4 mb-3">
-                    <motion.div 
-                      className={`p-2 rounded-lg bg-gradient-to-r ${step.color} shadow-lg`}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <step.icon className="h-5 w-5 text-white" />
-                    </motion.div>
-                    <h3 className="text-xl font-bold text-gray-900">{step.title}</h3>
-                  </div>
-                  <p className="text-gray-600 text-left leading-relaxed">{step.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Visual Timeline */}
-          <motion.div
-            variants={cardVariants}
-            whileHover={{ 
-              y: -5,
-              transition: { duration: 0.3 }
-            }}
-            className="relative"
-          >
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border border-gray-200">
-              {/* Benefits List */}
-              <div className="space-y-6">
-                {benefits.map((benefit, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
-                    transition={{ delay: index * 0.1 + 0.5 }}
-                    className="flex items-center space-x-3"
-                  >
-                    <motion.div
-                      whileHover={{ scale: 1.2, rotate: 5 }}
-                      className="flex-shrink-0"
-                    >
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                    </motion.div>
-                    <span className="text-gray-700 font-medium">{benefit}</span>
-                  </motion.div>
-                ))}
-              </div>
-              
-              {/* Stats */}
-              <motion.div 
-                className="mt-8 p-2  grid grid-cols-2 gap-6 text-center"
-                initial="hidden"
-                animate={isInView ? "visible" : "hidden"}
-                variants={containerVariants}
-              >
-                <motion.div
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-white rounded-xl p-4 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="text-2xl font-bold text-gray-900 mb-2">2min</div>
-                  <div className="text-sm text-gray-600 font-medium">Setup Time</div>
-                </motion.div>
-                <motion.div
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-white rounded-lg p-4 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="text-2xl font-bold text-gray-900 mb-2">$0</div>
-                  <div className="text-sm text-gray-600 font-medium">Cost</div>
-                </motion.div>
-              </motion.div>
-
-              {/* Floating Elements */}
-              <motion.div
-                animate={{
-                  y: [0, -10, 0],
-                  transition: {
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }
-                }}
-                className="absolute -top-2 -right-2 w-4 h-4 bg-primary-500/20 rounded-full"
-              />
-              <motion.div
-                animate={{
-                  y: [0, 10, 0],
-                  transition: {
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 1
-                  }
-                }}
-                className="absolute -bottom-2 -left-2 w-3 h-3 bg-purple-500/20 rounded-full"
-              />
+        {/* desktop pipeline */}
+        <div className="hidden lg:flex items-start gap-6">
+          {steps.map((step, i) => (
+            <div key={step.title} className="flex flex-1 items-start gap-6">
+              <StepNode step={step} index={i} active={i < activeCount} />
+              {i < steps.length - 1 && <Connector active={activeCount > i + 1} />}
             </div>
-          </motion.div>
-        </motion.div>
+          ))}
+        </div>
 
-        {/* Quick Start CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ delay: 0.8 }}
-          className="text-center mx-auto max-w-3xl bg-white rounded-2xl shadow-lg border border-gray-200 px-4 py-6"
-        >
-            <Card className="p-8 max-w-3xl mx-auto bg-gradient-to-r from-black to-gray-800 text-white">
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-5">
-                <div className="absolute top-0 left-0 w-32 h-32 border-2 border-white rounded-full"></div>
-                <div className="absolute bottom-0 right-0 w-32 h-32 border-2 border-white rounded-full"></div>
-              </div>
-              
-              <div className="relative z-10">
-                <h3 className="text-3xl font-bold mb-4">Ready to Start Your Financial Journey?</h3>
-                <p className="text-gray-300 mb-8 text-lg max-w-2xl mx-auto">
-                  Join thousands who have already taken control of their finances
-                </p>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+        {/* mobile pipeline */}
+        <div className="lg:hidden space-y-0">
+          {steps.map((step, i) => (
+            <div key={step.title} className="flex gap-5">
+              <div className="flex flex-col items-center">
+                <span
+                  className={`inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border transition-colors duration-300 ${
+                    i < activeCount
+                      ? 'border-money-500 bg-money-500/10 text-money-400'
+                      : 'border-line bg-canvas-card text-ink-faint'
+                  }`}
                 >
-                  <Button
-                    onClick={() => window.location.href = '/signup'}
-                    className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-12 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3 mx-auto"
-                  >
-                    <span>Start Free Today</span>
-                    <ArrowRight className="h-5 w-5" />
-                  </Button>
-                </motion.div>
+                  <step.icon className="h-6 w-6" />
+                </span>
+                {i < steps.length - 1 && <Connector active={activeCount > i + 1} vertical />}
               </div>
-            </Card>
+              <div className="pb-10 pt-3">
+                <p
+                  className={`mb-2 text-[10px] font-pixel tabular ${
+                    i < activeCount ? 'text-money-400' : 'text-ink-faint'
+                  }`}
+                >
+                  0{i + 1}
+                </p>
+                <h3 className="font-display text-lg font-semibold leading-snug text-ink">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-mute">{step.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="relative mt-24 overflow-hidden rounded-2xl border border-line bg-canvas-deep px-6 py-12 text-center sm:px-12"
+        >
+          <div aria-hidden className="absolute inset-0 pattern-dots opacity-40" />
+          <div className="relative">
+            <p className="mb-3 text-[10px] font-pixel uppercase tracking-wide text-money-400">
+              ready when you are
+            </p>
+            <h3 className="font-display text-display-sm font-semibold text-ink">
+              See where your money actually goes
+            </h3>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-ink-mute">
+              Free to set up. Takes ninety seconds. You can export everything the moment you change
+              your mind.
+            </p>
+            <div className="mt-8 flex justify-center">
+              <Button size="lg" className="group/btn" onClick={() => (window.location.href = '/signup')}>
+                Start the flow
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+              </Button>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
