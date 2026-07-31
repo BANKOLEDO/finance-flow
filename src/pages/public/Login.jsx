@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Eye, EyeOff, LogIn } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import AuthNavbar from '../../components/layout/AuthNavbar'
+import AuthShell from '../../components/layout/AuthShell'
 import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -15,10 +14,9 @@ export default function Login() {
   const [error, setError] = useState('')
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false)
   const [resetSent, setResetSent] = useState(false)
-  
+
   const { signIn, resetPassword } = useAuth()
 
-  // Load remembered email on component mount
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('rememberedEmail')
     if (rememberedEmail) {
@@ -31,7 +29,6 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     setError('')
-
     try {
       const { error } = await signIn(email, password, rememberMe)
       if (error) throw error
@@ -46,13 +43,11 @@ export default function Login() {
     e.preventDefault()
     setLoading(true)
     setError('')
-
     if (!email) {
       setError('Please enter your email address')
       setLoading(false)
       return
     }
-
     try {
       const { error } = await resetPassword(email)
       if (error) throw error
@@ -67,176 +62,144 @@ export default function Login() {
   const handleSubmit = forgotPasswordMode ? handleForgotPassword : handleLogin
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <AuthNavbar />
-      
-      <div className="flex-1 flex flex-col justify-center py-4 px-3">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <h2 className="text-center text-2xl md:text-3xl font-bold text-gray-900">
-            {forgotPasswordMode ? 'Reset Your Password' : 'Sign in to your account'}
-          </h2>
-        </div>
+    <AuthShell>
+      <p className="mb-3 text-[10px] font-pixel uppercase tracking-wide text-money-400">
+        {forgotPasswordMode ? 'recover access' : 'sign in'}
+      </p>
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
+        {forgotPasswordMode ? 'Reset your password' : 'Welcome back.'}
+      </h1>
+      <p className="mt-3 text-sm leading-relaxed text-ink-mute">
+        {forgotPasswordMode
+          ? 'Tell us the email you signed up with and we\u2019ll send a reset link.'
+          : 'Sign in to pick up where your ledger left off.'}
+      </p>
 
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-          <Card className="py-8 px-4 shadow-sm sm:rounded-lg sm:px-10">
-            {resetSent ? (
-              <div className="text-center space-y-4">
-                <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg text-sm">
-                  Password reset email sent! Check your inbox for further instructions.
-                </div>
-                <Button
-                  onClick={() => {
-                    setForgotPasswordMode(false)
-                    setResetSent(false)
-                  }}
-                  variant="black"
-                  className="w-full"
+      {resetSent ? (
+        <div className="mt-8 space-y-6">
+          <div className="rounded-lg border border-money-500/40 bg-money-500/10 p-4 text-sm text-money-400">
+            Reset link sent. Check your inbox for the next step.
+          </div>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              setForgotPasswordMode(false)
+              setResetSent(false)
+            }}
+          >
+            Back to sign in
+          </Button>
+        </div>
+      ) : (
+        <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+          {error && (
+            <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3.5 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+
+          <div>
+            <label htmlFor="email" className="label">
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          {!forgotPasswordMode && (
+            <div>
+              <label htmlFor="password" className="label">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input pr-12"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-ink-faint transition-colors hover:text-ink"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  Back to Login
-                </Button>
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
-            ) : (
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                    {error}
-                  </div>
-                )}
+            </div>
+          )}
 
-                <div>
-                  <label htmlFor="email" className="block text-left mb-2 text-sm font-medium text-primary-600">
-                    Email address
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                      placeholder="Enter your email"
-                    />
-                  </div>
-                </div>
+          {!forgotPasswordMode && (
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex cursor-pointer items-center gap-2.5 text-ink-soft">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 rounded border-line-strong bg-canvas-soft accent-money-500"
+                />
+                Remember me
+              </label>
+              <button
+                type="button"
+                onClick={() => setForgotPasswordMode(true)}
+                className="font-mono text-xs uppercase tracking-wider text-money-400 hover:text-money-300"
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
 
-                {!forgotPasswordMode && (
-                  <div>
-                    <label htmlFor="password" className="block text-left mb-2 text-sm font-medium text-primary-600">
-                      Password
-                    </label>
-                    <div className="mt-1 relative">
-                      <input
-                        id="password"
-                        name="password"
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="current-password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-600 focus:outline-none focus:ring-primary-500 focus:border-primary-500 pr-10"
-                        placeholder="Enter your password"
-                      />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5 text-gray-400" />
-                        ) : (
-                          <Eye className="h-5 w-5 text-gray-400" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {!forgotPasswordMode && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        id="remember-me"
-                        name="remember-me"
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                      />
-                      <label htmlFor="remember-me" className="ml-2 block text-xs sm:text-sm text-gray-900">
-                        Remember me
-                      </label>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setForgotPasswordMode(true)}
-                      className="text-sm font-medium text-primary-600 hover:text-primary-500 text-xs sm:text-sm"
-                    >
-                      Forgot your password?
-                    </button>
-                  </div>
-                )}
-
-                <div>
-                  <Button
-                    type="submit"
-                    variant="black"
-                    className="w-full flex justify-center items-center space-x-2"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    ) : (
-                      <>
-                        <LogIn className="h-5 w-5" />
-                        <span>
-                          {forgotPasswordMode ? 'Send Reset Link' : 'Sign in'}
-                        </span>
-                      </>
-                    )}
-                  </Button>
-                </div>
-
-                {forgotPasswordMode && (
-                  <div className="text-center">
-                    <button
-                      type="button"
-                      onClick={() => setForgotPasswordMode(false)}
-                      className="text-sm text-primary-600 hover:text-primary-500"
-                    >
-                      Back to login
-                    </button>
-                  </div>
-                )}
-              </form>
+          <Button type="submit" className="group/btn w-full" size="lg" disabled={loading}>
+            {loading
+              ? forgotPasswordMode
+                ? 'Sending…'
+                : 'Signing in…'
+              : forgotPasswordMode
+                ? 'Send reset link'
+                : 'Sign in'}
+            {!loading && (
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
             )}
+          </Button>
+        </form>
+      )}
 
-            {!forgotPasswordMode && !resetSent && (
-              <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">New to Finance Flow?</span>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <Link to="/signup">
-                    <Button variant="outline" className="w-full">
-                      Create your account
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            )}
-          </Card>
+      {!forgotPasswordMode && !resetSent && (
+        <div className="mt-8">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-line" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-canvas px-3 text-[10px] font-mono uppercase tracking-[0.2em] text-ink-faint">
+                new to flow?
+              </span>
+            </div>
+          </div>
+          <Link to="/signup" className="mt-6 block">
+            <Button variant="outline" className="w-full" size="lg">
+              Create an account
+            </Button>
+          </Link>
         </div>
-      </div>
-    </div>
+      )}
+    </AuthShell>
   )
 }
